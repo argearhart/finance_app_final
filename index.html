@@ -1,0 +1,936 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chamber Finance Tracker</title>
+    <link rel="stylesheet" href="styles.css">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+</head>
+<body>
+    <div class="app-container">
+        <!-- Sidebar Navigation -->
+        <nav class="sidebar">
+            <div class="logo">
+                <i class="fas fa-building"></i>
+                <h2>Chamber Finance</h2>
+                <button id="keyboard-help-btn" class="btn btn-sm btn-outline-secondary tooltip" style="margin-left: auto;">
+                    <i class="fas fa-keyboard"></i>
+                    <span class="tooltiptext">Keyboard Shortcuts Help</span>
+                </button>
+            </div>
+            <ul class="nav-menu">
+                <li class="nav-item active" data-section="dashboard">
+                    <i class="fas fa-tachometer-alt"></i>
+                    <span>Dashboard</span>
+                </li>
+                <li class="nav-item" data-section="transactions">
+                    <i class="fas fa-exchange-alt"></i>
+                    <span>Transactions</span>
+                </li>
+                <li class="nav-item" data-section="members">
+                    <i class="fas fa-users"></i>
+                    <span>Members</span>
+                </li>
+                <li class="nav-item" data-section="categories">
+                    <i class="fas fa-tags"></i>
+                    <span>Categories</span>
+                </li>
+                <li class="nav-item" data-section="invoices">
+                    <i class="fas fa-file-invoice"></i>
+                    <span>Invoices</span>
+                </li>
+                <li class="nav-item" data-section="reports">
+                    <i class="fas fa-chart-bar"></i>
+                    <span>Reports</span>
+                </li>
+                <li class="nav-item" data-section="import">
+                    <i class="fas fa-file-import"></i>
+                    <span>Import Data</span>
+                </li>
+            </ul>
+        </nav>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <!-- Dashboard Section -->
+            <section id="dashboard" class="content-section active">
+                <div class="section-header">
+                    <h1><i class="fas fa-tachometer-alt"></i> Dashboard</h1>
+                    <div class="header-actions">
+                        <div class="date-range">
+                            <input type="date" id="dashboard-start-date">
+                            <span>to</span>
+                            <input type="date" id="dashboard-end-date">
+                            <button id="update-dashboard" class="btn btn-primary">
+                                <i class="fas fa-sync"></i> Update
+                            </button>
+                        </div>
+                        <div class="export-controls">
+                            <button class="btn btn-outline-primary" onclick="exportSectionData('dashboard')">
+                                <i class="fas fa-download"></i> Export CSV
+                            </button>
+                            <button class="btn btn-outline-secondary" onclick="printSectionData('dashboard')">
+                                <i class="fas fa-print"></i> Print
+                            </button>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="dashboard-cards">
+                    <div class="card income-card">
+                        <div class="card-icon">
+                            <i class="fas fa-arrow-up"></i>
+                        </div>
+                        <div class="card-content">
+                            <h3>Total Income</h3>
+                            <div class="amount" id="total-income">$0.00</div>
+                        </div>
+                    </div>
+                    
+                    <div class="card expense-card">
+                        <div class="card-icon">
+                            <i class="fas fa-arrow-down"></i>
+                        </div>
+                        <div class="card-content">
+                            <h3>Total Expenses</h3>
+                            <div class="amount" id="total-expenses">$0.00</div>
+                        </div>
+                    </div>
+                    
+                    <div class="card net-card">
+                        <div class="card-icon">
+                            <i class="fas fa-balance-scale"></i>
+                        </div>
+                        <div class="card-content">
+                            <h3>Net Income</h3>
+                            <div class="amount" id="net-income">$0.00</div>
+                        </div>
+                    </div>
+                    
+                    <div class="card members-card">
+                        <div class="card-icon">
+                            <i class="fas fa-users"></i>
+                        </div>
+                        <div class="card-content">
+                            <h3>Active Members</h3>
+                            <div class="amount" id="active-members">0</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="dashboard-content">
+                    <div class="recent-transactions">
+                        <h3>Recent Transactions</h3>
+                        <div class="table-container">
+                            <table id="recent-transactions-table">
+                                <thead>
+                                    <tr>
+                                        <th>Date</th>
+                                        <th>Description</th>
+                                        <th>Type</th>
+                                        <th>Amount</th>
+                                        <th>Category</th>
+                                    </tr>
+                                </thead>
+                                <tbody></tbody>
+                            </table>
+                        </div>
+                    </div>
+                    
+                    <div class="upcoming-renewals">
+                        <h3>Upcoming Renewals</h3>
+                        <div class="table-container">
+                            <table id="upcoming-renewals-table">
+                                <thead>
+                                    <tr>
+                                        <th>Business Name</th>
+                                        <th>Membership Type</th>
+                                        <th>Renewal Date</th>
+                                        <th>Days Until Due</th>
+                                    </tr>
+                                </thead>
+                                <tbody></tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Transactions Section -->
+            <section id="transactions" class="content-section">
+                <div class="section-header">
+                    <h1><i class="fas fa-exchange-alt"></i> Transactions</h1>
+                    <div class="header-actions">
+                        <button id="add-transaction-btn" class="btn btn-primary">
+                            <i class="fas fa-plus"></i> Add Transaction
+                        </button>
+                        <div class="export-controls">
+                            <button class="btn btn-outline-primary" onclick="exportSectionData('transactions')">
+                                <i class="fas fa-download"></i> Export CSV
+                            </button>
+                            <button class="btn btn-outline-secondary" onclick="printSectionData('transactions')">
+                                <i class="fas fa-print"></i> Print
+                            </button>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="filters">
+                    <div class="filter-group">
+                        <label>Date Range:</label>
+                        <input type="date" id="trans-start-date">
+                        <span>to</span>
+                        <input type="date" id="trans-end-date">
+                    </div>
+                    <div class="filter-group">
+                        <label>Type:</label>
+                        <select id="trans-type-filter">
+                            <option value="">All</option>
+                            <option value="income">Income</option>
+                            <option value="expense">Expense</option>
+                        </select>
+                    </div>
+                    <div class="filter-group">
+                        <label>Category:</label>
+                        <select id="trans-category-filter">
+                            <option value="">All Categories</option>
+                            <option value="uncategorized">Uncategorized</option>
+                        </select>
+                    </div>
+                    <button id="filter-transactions" class="btn btn-secondary">
+                        <i class="fas fa-filter"></i> Filter
+                    </button>
+                </div>
+
+                <div class="table-container">
+                    <table id="transactions-table">
+                        <thead>
+                            <tr>
+                                <th>Date</th>
+                                <th>Description</th>
+                                <th>Type</th>
+                                <th>Amount</th>
+                                <th>Category</th>
+                                <th>Member</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody></tbody>
+                    </table>
+                </div>
+            </section>
+
+            <!-- Members Section -->
+            <section id="members" class="content-section">
+                <div class="section-header">
+                    <h1><i class="fas fa-users"></i> Members</h1>
+                    <div class="header-actions">
+                        <button id="add-member-btn" class="btn btn-primary">
+                            <i class="fas fa-plus"></i> Add Member
+                        </button>
+                        <div class="export-controls">
+                            <button class="btn btn-outline-primary" onclick="exportSectionData('members')">
+                                <i class="fas fa-download"></i> Export CSV
+                            </button>
+                            <button class="btn btn-outline-secondary" onclick="printSectionData('members')">
+                                <i class="fas fa-print"></i> Print
+                            </button>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="search-filters">
+                    <div class="search-group">
+                        <input type="search" id="member-search" placeholder="Search members by name, email, or phone..." class="search-input">
+                        <i class="fas fa-search search-icon"></i>
+                    </div>
+                    <div class="filter-group">
+                        <label for="member-status-filter">Status:</label>
+                        <select id="member-status-filter">
+                            <option value="">All</option>
+                            <option value="active">Active</option>
+                            <option value="inactive">Inactive</option>
+                        </select>
+                    </div>
+                    <button id="filter-members" class="btn btn-secondary">
+                        <i class="fas fa-filter"></i> Filter
+                    </button>
+                </div>
+
+                <div class="table-container">
+                    <table id="members-table">
+                        <thead>
+                            <tr>
+                                <th>Business Name</th>
+                                <th>Membership Type</th>
+                                <th>Contact Person</th>
+                                <th>Email</th>
+                                <th>Phone</th>
+                                <th>Renewal Date</th>
+                                <th>Status</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody></tbody>
+                    </table>
+                </div>
+            </section>
+
+            <!-- Categories Section -->
+            <section id="categories" class="content-section">
+                <div class="section-header">
+                    <h1><i class="fas fa-tags"></i> Categories</h1>
+                    <div class="header-actions">
+                        <button id="add-category-btn" class="btn btn-primary">
+                            <i class="fas fa-plus"></i> Add Category
+                        </button>
+                        <div class="export-controls">
+                            <button class="btn btn-outline-primary" onclick="exportSectionData('categories')">
+                                <i class="fas fa-download"></i> Export CSV
+                            </button>
+                            <button class="btn btn-outline-secondary" onclick="printSectionData('categories')">
+                                <i class="fas fa-print"></i> Print
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="categories-grid">
+                    <div class="category-section">
+                        <h3>Income Categories</h3>
+                        <div id="income-categories" class="category-list"></div>
+                    </div>
+                    <div class="category-section">
+                        <h3>Expense Categories</h3>
+                        <div id="expense-categories" class="category-list"></div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Invoices Section -->
+            <section id="invoices" class="content-section">
+                <div class="section-header">
+                    <h1><i class="fas fa-file-invoice"></i> Invoices</h1>
+                    <div class="header-actions">
+                        <div class="export-controls">
+                            <button class="btn btn-outline-primary" onclick="exportSectionData('invoices')">
+                                <i class="fas fa-download"></i> Export CSV
+                            </button>
+                            <button class="btn btn-outline-secondary" onclick="printSectionData('invoices')">
+                                <i class="fas fa-print"></i> Print
+                            </button>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="invoice-controls">
+                    <div class="invoice-summary">
+                        <div class="summary-card">
+                            <h3>Pending Invoices</h3>
+                            <div class="amount" id="pending-invoices">0</div>
+                        </div>
+                        <div class="summary-card">
+                            <h3>Overdue Invoices</h3>
+                            <div class="amount" id="overdue-invoices">0</div>
+                        </div>
+                        <div class="summary-card">
+                            <h3>Outstanding Amount</h3>
+                            <div class="amount" id="outstanding-amount">$0.00</div>
+                        </div>
+                    </div>
+                    
+                    <div class="invoice-actions">
+                        <button id="add-invoice-btn" class="btn btn-primary">
+                            <i class="fas fa-plus"></i> Add Invoice
+                        </button>
+                        <button id="add-free-invoice-btn" class="btn btn-secondary">
+                            <i class="fas fa-gift"></i> Create Free Invoice
+                        </button>
+                        <button id="generate-renewal-invoices-btn" class="btn btn-success tooltip">
+                            <i class="fas fa-calendar-plus"></i> Generate Renewal Invoices
+                            <span class="tooltiptext">Create invoices for members with upcoming or overdue renewals</span>
+                        </button>
+                    </div>
+                </div>
+
+                <div class="bulk-invoice-section" id="bulk-invoice-section" style="display: none;">
+                    <h3>Generate Renewal Invoices</h3>
+                    <div class="bulk-invoice-controls">
+                        <div class="form-group">
+                            <label for="renewal-month">For Month:</label>
+                            <input type="month" id="renewal-month">
+                        </div>
+                        <button id="preview-renewal-invoices" class="btn btn-secondary">
+                            <i class="fas fa-eye"></i> Preview Renewals
+                        </button>
+                        <button id="preview-overdue-invoices" class="btn btn-warning tooltip">
+                            <i class="fas fa-exclamation-triangle"></i> Preview Overdue
+                            <span class="tooltiptext">Show all members with overdue renewals for invoice generation</span>
+                        </button>
+                        <button id="generate-bulk-invoices" class="btn btn-primary" style="display: none;">
+                            <i class="fas fa-file-invoice"></i> Generate Invoices
+                        </button>
+                        <button id="clear-bulk-preview" class="btn btn-outline-secondary" style="display: none;">
+                            <i class="fas fa-times"></i> Clear Preview
+                        </button>
+                    </div>
+                    
+                    <div id="renewal-preview" class="renewal-preview" style="display: none;">
+                        <h4 id="preview-title">Members to Invoice:</h4>
+                        <div class="table-container">
+                            <table id="renewal-preview-table">
+                                <thead>
+                                    <tr>
+                                        <th>Business Name</th>
+                                        <th>Membership Type</th>
+                                        <th>Renewal Date</th>
+                                        <th>Days Overdue</th>
+                                        <th>Amount</th>
+                                    </tr>
+                                </thead>
+                                <tbody></tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="invoice-filters">
+                    <div class="filter-group">
+                        <label for="invoice-status-filter">Status:</label>
+                        <select id="invoice-status-filter">
+                            <option value="">All</option>
+                            <option value="pending">Pending</option>
+                            <option value="paid">Paid</option>
+                            <option value="overdue">Overdue</option>
+                        </select>
+                    </div>
+                    <button id="filter-invoices" class="btn btn-secondary">
+                        <i class="fas fa-filter"></i> Filter
+                    </button>
+                </div>
+
+                <div class="table-container">
+                    <table id="invoices-table">
+                        <thead>
+                            <tr>
+                                <th>Invoice #</th>
+                                <th>Business Name</th>
+                                <th>Issue Date</th>
+                                <th>Due Date</th>
+                                <th>Amount</th>
+                                <th>Status</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody></tbody>
+                    </table>
+                </div>
+            </section>
+
+            <!-- Reports Section -->
+            <section id="reports" class="content-section">
+                <div class="section-header">
+                    <h1><i class="fas fa-chart-bar"></i> Reports</h1>
+                    <div class="header-actions">
+                        <div class="export-controls">
+                            <button class="btn btn-outline-primary" onclick="exportSectionData('reports')">
+                                <i class="fas fa-download"></i> Export CSV
+                            </button>
+                            <button class="btn btn-outline-secondary" onclick="printSectionData('reports')">
+                                <i class="fas fa-print"></i> Print
+                            </button>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="report-controls">
+                    <div class="report-type">
+                        <label>Report Type:</label>
+                        <select id="report-type">
+                            <option value="monthly">Monthly P&L</option>
+                            <option value="quarterly">Quarterly P&L</option>
+                            <option value="annual">Annual P&L</option>
+                            <option value="custom">Custom Date Range</option>
+                            <option value="board-summary">Board Executive Summary</option>
+                            <option value="comparative">Comparative Analysis</option>
+                        </select>
+                    </div>
+                    
+                    <div class="report-period" id="report-period">
+                        <div class="period-selector" id="monthly-selector" style="display: none;">
+                            <label>Month:</label>
+                            <select id="report-month">
+                                <option value="01">January</option>
+                                <option value="02">February</option>
+                                <option value="03">March</option>
+                                <option value="04">April</option>
+                                <option value="05">May</option>
+                                <option value="06">June</option>
+                                <option value="07">July</option>
+                                <option value="08">August</option>
+                                <option value="09">September</option>
+                                <option value="10">October</option>
+                                <option value="11">November</option>
+                                <option value="12">December</option>
+                            </select>
+                            <label>Year:</label>
+                            <select id="report-year-monthly">
+                                <!-- Options will be populated dynamically -->
+                            </select>
+                        </div>
+                        
+                        <div class="period-selector" id="quarterly-selector" style="display: none;">
+                            <label>Quarter:</label>
+                            <select id="report-quarter">
+                                <option value="Q1">Q1 (Jan-Mar)</option>
+                                <option value="Q2">Q2 (Apr-Jun)</option>
+                                <option value="Q3">Q3 (Jul-Sep)</option>
+                                <option value="Q4">Q4 (Oct-Dec)</option>
+                            </select>
+                            <label>Year:</label>
+                            <select id="report-year-quarterly">
+                                <!-- Options will be populated dynamically -->
+                            </select>
+                        </div>
+                        
+                        <div class="period-selector" id="annual-selector">
+                            <label>Year:</label>
+                            <select id="report-year">
+                                <!-- Options will be populated dynamically -->
+                            </select>
+                        </div>
+                        
+                        <div class="period-selector" id="custom-selector" style="display: none;">
+                            <label>Start Date:</label>
+                            <input type="date" id="report-start-date">
+                            <label>End Date:</label>
+                            <input type="date" id="report-end-date">
+                        </div>
+                        
+                        <div class="period-selector" id="comparative-selector" style="display: none;">
+                            <label>Compare:</label>
+                            <select id="comparison-type">
+                                <option value="month-over-month">Month over Month</option>
+                                <option value="quarter-over-quarter">Quarter over Quarter</option>
+                                <option value="year-over-year">Year over Year</option>
+                            </select>
+                            <label>Current Period:</label>
+                            <select id="current-period">
+                                <!-- Options will be populated dynamically -->
+                            </select>
+                        </div>
+                    </div>
+                    
+                    <div class="report-options">
+                        <label>
+                            <input type="checkbox" id="include-charts" checked> Include Charts
+                        </label>
+                        <label>
+                            <input type="checkbox" id="include-trends" checked> Include Trends
+                        </label>
+                        <label>
+                            <input type="checkbox" id="include-projections"> Include Projections
+                        </label>
+                    </div>
+                    
+                    <button id="generate-report" class="btn btn-primary">
+                        <i class="fas fa-chart-line"></i> Generate Report
+                    </button>
+                </div>
+
+                <div id="report-results" class="report-results"></div>
+            </section>
+
+            <!-- Import Section -->
+            <section id="import" class="content-section">
+                <div class="section-header">
+                    <h1><i class="fas fa-file-import"></i> Import Data</h1>
+                </div>
+                
+                <div class="import-section">
+                    <h3>Import Bank Statement (CSV)</h3>
+                    <p>Upload a CSV file from your bank statement to import transactions.</p>
+                    
+                    <div class="file-upload">
+                        <input type="file" id="csv-file" accept=".csv" style="display: none;">
+                        <button id="select-csv-file" class="btn btn-secondary">
+                            <i class="fas fa-file-csv"></i> Select CSV File
+                        </button>
+                        <span id="selected-file-name">No file selected</span>
+                    </div>
+                    
+                    <div id="csv-preview" class="csv-preview" style="display: none;">
+                        <h4>Preview Data</h4>
+                        <div class="table-container">
+                            <table id="csv-preview-table">
+                                <thead></thead>
+                                <tbody></tbody>
+                            </table>
+                        </div>
+                        <button id="import-csv-data" class="btn btn-primary">
+                            <i class="fas fa-upload"></i> Import Data
+                        </button>
+                    </div>
+                </div>
+
+                <div class="import-section">
+                    <h3>Import Members (CSV)</h3>
+                    <p>Upload a CSV file to import member data.</p>
+                    
+                    <div class="import-help">
+                        <h4>Required CSV Format:</h4>
+                        <p>Your CSV file should have these exact column headers:</p>
+                        <ul>
+                            <li><strong>Business Name</strong> - The name of the business</li>
+                            <li><strong>Phone</strong> - Phone number</li>
+                            <li><strong>E-mail</strong> - Email address</li>
+                            <li><strong>zip_code_address</strong> - Street address</li>
+                            <li><strong>city</strong> - City name</li>
+                            <li><strong>Membership type</strong> - Membership category</li>
+                            <li><strong>Renewal Date</strong> - When membership expires (MM-DD-YYYY format)</li>
+                        </ul>
+                        <p><strong>Optional columns:</strong></p>
+                        <ul>
+                            <li><strong>Join Date</strong> - When they joined (MM-DD-YYYY format)</li>
+                            <li><strong>Contact Person</strong> - Primary contact name</li>
+                            <li><strong>Status</strong> - active, inactive, etc.</li>
+                            <li><strong>Notes</strong> - Any additional notes</li>
+                        </ul>
+                    </div>
+                    
+                    <div class="file-upload">
+                        <input type="file" id="members-csv-file" accept=".csv" style="display: none;">
+                        <button id="select-members-csv-file" class="btn btn-secondary">
+                            <i class="fas fa-users"></i> Select Members CSV File
+                        </button>
+                        <span id="selected-members-file-name">No file selected</span>
+                    </div>
+                    
+                    <div id="members-csv-preview" class="csv-preview" style="display: none;">
+                        <h4>Preview Members Data</h4>
+                        <div class="table-container">
+                            <table id="members-csv-preview-table">
+                                <thead></thead>
+                                <tbody></tbody>
+                            </table>
+                        </div>
+                        <button id="import-members-data" class="btn btn-primary">
+                            <i class="fas fa-upload"></i> Import Members
+                        </button>
+                    </div>
+                </div>
+            </section>
+        </main>
+    </div>
+
+    <!-- Modals -->
+    <div id="modal-overlay" class="modal-overlay">
+        <!-- Transaction Modal -->
+        <div id="transaction-modal" class="modal">
+            <div class="modal-header">
+                <h3 id="transaction-modal-title">Add Transaction</h3>
+                <button class="modal-close">&times;</button>
+            </div>
+            <div class="modal-body">
+                <form id="transaction-form">
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="trans-date">Date *</label>
+                            <input type="date" id="trans-date" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="trans-type">Type *</label>
+                            <select id="trans-type" required>
+                                <option value="">Select Type</option>
+                                <option value="income">Income</option>
+                                <option value="expense">Expense</option>
+                            </select>
+                        </div>
+                    </div>
+                    
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="trans-amount">Amount *</label>
+                            <input type="number" id="trans-amount" step="0.01" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="trans-category">Category</label>
+                            <select id="trans-category">
+                                <option value="">Select Category</option>
+                            </select>
+                        </div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="trans-description">Description *</label>
+                        <input type="text" id="trans-description" required>
+                    </div>
+                    
+                    <!-- Split Transaction Toggle -->
+                    <div class="form-group">
+                        <label class="checkbox-label">
+                            <input type="checkbox" id="trans-split-toggle">
+                            <span class="checkmark"></span>
+                            Split Transaction (Multiple categories/members)
+                        </label>
+                    </div>
+                    
+                    <!-- Split Transaction Section -->
+                    <div id="split-transaction-section" style="display: none;">
+                        <div class="split-header">
+                            <h4>Transaction Splits</h4>
+                            <button type="button" id="add-split-btn" class="btn btn-sm btn-outline-primary">
+                                <i class="fas fa-plus"></i> Add Split
+                            </button>
+                        </div>
+                        <div class="split-help">
+                            <p><i class="fas fa-info-circle"></i> <strong>Tip:</strong> Use negative amounts for cash back, refunds, or deductions. For example, if you received $1000 but had $400 cash back, enter $1000 in one split and -$400 in another.</p>
+                        </div>
+                        <div id="splits-container">
+                            <!-- Split rows will be added here dynamically -->
+                        </div>
+                        <div class="split-total">
+                            <strong>Total: $<span id="split-total">0.00</span></strong>
+                        </div>
+                    </div>
+                    
+                    <!-- Regular Transaction Fields (hidden when split mode is active) -->
+                    <div id="regular-transaction-fields">
+                        <div class="form-group">
+                            <label for="trans-payee-payer">Payee/Payer</label>
+                            <input type="text" id="trans-payee-payer" placeholder="Who paid or received the money">
+                        </div>
+                        
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="trans-member">Member</label>
+                                <select id="trans-member">
+                                    <option value="">Select Member</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label for="trans-payment-method">Payment Method</label>
+                                <select id="trans-payment-method">
+                                    <option value="">Select Method</option>
+                                    <option value="cash">Cash</option>
+                                    <option value="check">Check</option>
+                                    <option value="credit_card">Credit Card</option>
+                                    <option value="bank_transfer">Bank Transfer</option>
+                                    <option value="other">Other</option>
+                                </select>
+                            </div>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="trans-reference">Reference Number</label>
+                            <input type="text" id="trans-reference">
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="trans-notes">Notes</label>
+                            <textarea id="trans-notes" rows="3"></textarea>
+                        </div>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary modal-close">Cancel</button>
+                <button type="submit" form="transaction-form" class="btn btn-primary">Save Transaction</button>
+            </div>
+        </div>
+
+        <!-- Invoice Modal -->
+        <div id="invoice-modal" class="modal">
+            <div class="modal-header">
+                <h3 id="invoice-modal-title">Add Invoice</h3>
+                <button class="modal-close">&times;</button>
+            </div>
+            <div class="modal-body">
+                <form id="invoice-form">
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="invoice-member">Member *</label>
+                            <select id="invoice-member" required>
+                                <option value="">Select Member</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="invoice-amount">Amount *</label>
+                            <input type="number" id="invoice-amount" step="0.01" required>
+                        </div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="invoice-description">Description *</label>
+                        <input type="text" id="invoice-description" required>
+                    </div>
+                    
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="invoice-issue-date">Issue Date *</label>
+                            <input type="date" id="invoice-issue-date" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="invoice-due-date">Due Date *</label>
+                            <input type="date" id="invoice-due-date" required>
+                        </div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="invoice-status">Status</label>
+                        <select id="invoice-status">
+                            <option value="pending">Pending</option>
+                            <option value="paid">Paid</option>
+                            <option value="overdue">Overdue</option>
+                        </select>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="invoice-payment-method">Payment Method</label>
+                        <select id="invoice-payment-method">
+                            <option value="">Not Specified</option>
+                            <option value="cash">Cash</option>
+                            <option value="check">Check</option>
+                            <option value="credit_card">Credit Card</option>
+                            <option value="bank_transfer">Bank Transfer</option>
+                            <option value="other">Other</option>
+                        </select>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="invoice-notes">Notes</label>
+                        <textarea id="invoice-notes" rows="3"></textarea>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary modal-close">Cancel</button>
+                <button type="submit" form="invoice-form" class="btn btn-primary">Save Invoice</button>
+            </div>
+        </div>
+
+        <!-- Member Modal -->
+        <div id="member-modal" class="modal">
+            <div class="modal-header">
+                <h3 id="member-modal-title">Add Member</h3>
+                <button class="modal-close">&times;</button>
+            </div>
+            <div class="modal-body">
+                <form id="member-form">
+                    <div class="form-group">
+                        <label for="member-business-name">Business Name *</label>
+                        <input type="text" id="member-business-name" required>
+                    </div>
+                    
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="member-type">Membership Type *</label>
+                            <select id="member-type" required>
+                                <option value="">Select Type</option>
+                                <option value="1-5 Employees ($100)">1-5 Employees ($100)</option>
+                                <option value="6-25 Employees ($150)">6-25 Employees ($150)</option>
+                                <option value="26-50 Employees ($250)">26-50 Employees ($250)</option>
+                                <option value="51-100 Employees ($350)">51-100 Employees ($350)</option>
+                                <option value="101-249 Employees ($500)">101-249 Employees ($500)</option>
+                                <option value="250+ Employees ($1000)">250+ Employees ($1000)</option>
+                                <option value="Non-Profit ($100)">Non-Profit ($100)</option>
+                                <option value="Individual ($100)">Individual ($100)</option>
+                                <option value="Free Membership ($0)">Free Membership ($0)</option>
+                            </select>
+                            <div class="form-help">
+                                <small>Count all employees (2 part-time = 1 full-time)</small>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label for="member-status">Status</label>
+                            <select id="member-status">
+                                <option value="active">Active</option>
+                                <option value="inactive">Inactive</option>
+                                <option value="expired">Expired</option>
+                            </select>
+                        </div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="member-contact">Contact Person</label>
+                        <input type="text" id="member-contact">
+                    </div>
+                    
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="member-email">Email</label>
+                            <input type="email" id="member-email">
+                        </div>
+                        <div class="form-group">
+                            <label for="member-phone">Phone</label>
+                            <input type="tel" id="member-phone">
+                        </div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="member-address">Address</label>
+                        <textarea id="member-address" rows="2"></textarea>
+                    </div>
+                    
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="member-join-date">Join Date</label>
+                            <input type="date" id="member-join-date">
+                        </div>
+                        <div class="form-group">
+                            <label for="member-renewal-date">Renewal Date</label>
+                            <input type="date" id="member-renewal-date">
+                        </div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="member-notes">Notes</label>
+                        <textarea id="member-notes" rows="3"></textarea>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary modal-close">Cancel</button>
+                <button type="submit" form="member-form" class="btn btn-primary">Save Member</button>
+            </div>
+        </div>
+
+        <!-- Category Modal -->
+        <div id="category-modal" class="modal">
+            <div class="modal-header">
+                <h3 id="category-modal-title">Add Category</h3>
+                <button class="modal-close">&times;</button>
+            </div>
+            <div class="modal-body">
+                <form id="category-form">
+                    <div class="form-group">
+                        <label for="category-name">Category Name *</label>
+                        <input type="text" id="category-name" required>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="category-type">Type *</label>
+                        <select id="category-type" required>
+                            <option value="">Select Type</option>
+                            <option value="income">Income</option>
+                            <option value="expense">Expense</option>
+                        </select>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="category-description">Description</label>
+                        <textarea id="category-description" rows="3"></textarea>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary modal-close">Cancel</button>
+                <button type="submit" form="category-form" class="btn btn-primary">Save Category</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="app.js"></script>
+</body>
+</html>

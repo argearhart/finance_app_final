@@ -1,0 +1,41 @@
+{
+  "name": "chamber-finance-tracker",
+  "version": "1.0.0",
+  "description": "Finance tracking app for Chamber of Commerce",
+  "main": "main.js",
+  "scripts": {
+    "start": "electron .",
+    "dev": "electron . --dev",
+    "build": "electron-builder",
+    "dist": "electron-builder --publish=never"
+  },
+  "keywords": ["finance", "tracking", "chamber", "commerce"],
+  "author": "Chamber of Commerce",
+  "license": "MIT",
+  "devDependencies": {
+    "electron": "^27.0.0",
+    "electron-builder": "^24.6.4"
+  },
+  "dependencies": {
+    "sqlite3": "^5.1.6",
+    "csv-parser": "^3.0.0",
+    "date-fns": "^2.30.0",
+    "pdf-lib": "^1.17.1"
+  },
+  "build": {
+    "appId": "com.chamber.finance-tracker",
+    "productName": "Chamber Finance Tracker",
+    "directories": {
+      "output": "dist"
+    },
+    "files": [
+      "**/*",
+      "!node_modules/**/*",
+      "node_modules/sqlite3/**/*"
+    ],
+    "win": {
+      "target": "nsis",
+      "icon": "assets/icon.ico"
+    }
+  }
+}
